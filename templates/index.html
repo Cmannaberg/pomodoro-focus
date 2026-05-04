@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Focus</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    h1 { font-size: 1.4rem; letter-spacing: 0.1em; color: #aaa; margin-bottom: 30px; }
+
+    #phase-label {
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      color: #e94560;
+    }
+
+    #timer {
+      font-size: 6rem;
+      font-weight: 200;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    #cycle-label {
+      font-size: 0.95rem;
+      color: #888;
+      margin-bottom: 40px;
+    }
+
+    #start-btn {
+      background: #e94560;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 16px 60px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #start-btn:hover { background: #c73652; }
+    #start-btn:disabled { background: #555; cursor: default; }
+
+    #status-msg {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #888;
+      min-height: 1.2em;
+    }
+
+    /* Summary section */
+    #summary {
+      margin-top: 50px;
+      width: 100%;
+      max-width: 360px;
+      background: #16213e;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    #summary h2 { font-size: 0.9rem; letter-spacing: 0.1em; color: #aaa; margin-bottom: 16px; }
+    #summary-body { font-size: 0.95rem; line-height: 1.8; color: #ccc; }
+    .session-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #888; }
+
+    /* Color shifts for break phases */
+    body.break  { background: #1a2e1a; }
+    body.break  #phase-label { color: #4caf50; }
+    body.break  #start-btn   { background: #4caf50; }
+  </style>
+</head>
+<body>
+
+  <h1>🍅 POMODORO FOCUS</h1>
+
+  <div id="phase-label">READY</div>
+  <div id="timer">25:00</div>
+  <div id="cycle-label">Cycle 0</div>
+
+  <button id="start-btn">START</button>
+  <div id="status-msg"></div>
+
+  <div id="summary">
+    <h2>TODAY'S SESSIONS</h2>
+    <div id="summary-body">Loading…</div>
+  </div>
+
+<script>
+  // --- Settings passed from Flask via Jinja2 template variables ---
+  const WORK_SEC        = {{ work }} * 60;
+  const SHORT_BREAK_SEC = {{ short_break }} * 60;
+  const LONG_BREAK_SEC  = {{ long_break }} * 60;
+  const CYCLES_BEFORE_LONG = {{ cycles_before_long }};
+
+  // --- State ---
+  let cycle       = 0;
+  let phase       = "work";   // "work" | "short_break" | "long_break"
+  let timeLeft    = WORK_SEC;
+  let intervalId  = null;
+  let sessionStart = null;
+  let audioCtx    = null;     // Web Audio context (created on first tap)
+  let running     = false;
+
+  // --- DOM references ---
+  const timerEl   = document.getElementById("timer");
+  const phaseEl   = document.getElementById("phase-label");
+  const cycleEl   = document.getElementById("cycle-label");
+  const btn       = document.getElementById("start-btn");
+  const statusEl  = document.getElementById("status-msg");
+
+  // --- Display ---
+  function formatTime(sec) {
+    const m = String(Math.floor(sec / 60)).padStart(2, "0");
+    const s = String(sec % 60).padStart(2, "0");
+    return `${m}:${s}`;
+  }
+
+  function updateDisplay() {
+    timerEl.textContent = formatTime(timeLeft);
+    cycleEl.textContent = `Cycle ${cycle}`;
+  }
+
+  // --- Beep using Web Audio API (works on iPhone) ---
+  function beep() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < 3; i++) {
+      const osc  = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = 880;
+      const t = audioCtx.currentTime + i * 0.45;
+      gain.gain.setValueAtTime(0.5, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      osc.start(t);
+      osc.stop(t + 0.35);
+    }
+  }
+
+  // --- Log a completed work session to Flask ---
+  function logSession(cycleNum, start, end) {
+    const today = start.toISOString().split("T")[0];   // "2026-05-03"
+    const fmt   = dt => dt.toTimeString().split(" ")[0]; // "HH:MM:SS"
+
+    fetch("/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        date:  today,
+        cycle: cycleNum,
+        start: fmt(start),
+        end:   fmt(end),
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      statusEl.textContent = `Session logged — ${data.total_today} completed today`;
+      loadSummary();
+    });
+  }
+
+  // --- Advance to the next phase ---
+  function nextPhase() {
+    beep();
+
+    if (phase === "work") {
+      logSession(cycle, sessionStart, new Date());
+      if (cycle % CYCLES_BEFORE_LONG === 0) {
+        phase    = "long_break";
+        timeLeft = LONG_BREAK_SEC;
+        phaseEl.textContent = "LONG BREAK";
+        document.body.className = "break";
+      } else {
+        phase    = "short_break";
+        timeLeft = SHORT_BREAK_SEC;
+        phaseEl.textContent = "SHORT BREAK";
+        document.body.className = "break";
+      }
+    } else {
+      // Break ended — start next work session
+      phase    = "work";
+      timeLeft = WORK_SEC;
+      phaseEl.textContent = "WORK SESSION";
+      document.body.className = "";
+    }
+
+    sessionStart = new Date();
+    updateDisplay();
+  }
+
+  // --- Tick every second ---
+  function tick() {
+    timeLeft--;
+    updateDisplay();
+    if (timeLeft <= 0) nextPhase();
+  }
+
+  // --- Start button ---
+  btn.addEventListener("click", () => {
+    if (running) return;
+
+    // Create AudioContext on user tap (required by iOS)
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    running      = true;
+    cycle        = 1;
+    phase        = "work";
+    timeLeft     = WORK_SEC;
+    sessionStart = new Date();
+
+    phaseEl.textContent = "WORK SESSION";
+    btn.disabled = true;
+    btn.textContent = "RUNNING";
+    statusEl.textContent = "";
+    document.body.className = "";
+    updateDisplay();
+
+    intervalId = setInterval(tick, 1000);
+  });
+
+  // --- Load and display today's summary ---
+  function loadSummary() {
+    fetch("/summary")
+      .then(r => r.json())
+      .then(data => {
+        const el = document.getElementById("summary-body");
+        if (data.total === 0) {
+          el.innerHTML = "No sessions yet today.";
+          return;
+        }
+        let html = `<p>Pomodoros: <strong>${data.total}</strong> &nbsp;|&nbsp; `;
+        html    += `Focus time: <strong>${data.hours}h ${data.remainder}m</strong></p><br>`;
+        for (const s of data.sessions) {
+          html += `<div class="session-row"><span>Cycle ${s.cycle}</span><span>${s.start} → ${s.end}</span></div>`;
+        }
+        el.innerHTML = html;
+      });
+  }
+
+  // Load summary on page open
+  loadSummary();
+</script>
+</body>
+</html>
