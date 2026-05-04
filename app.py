@@ -86,6 +86,6 @@ if __name__ == "__main__":
     # host="0.0.0.0" makes the server reachable from your iPhone on the same WiFi
     # debug=True auto-reloads when you save changes
     print("Starting Pomodoro server...")
-    print("Open on this Mac:   http://localhost:5000")
+    print("Open on this Mac:   http://localhost:5001")
     print("Find your Mac's IP with: ipconfig getifaddr en0")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
