@@ -19,30 +19,144 @@
     }
 
     h1 { font-size: 1.4rem; letter-spacing: 0.1em; color: #aaa; margin-bottom: 30px; }
+    h2 { font-size: 1.1rem; color: #ccc; margin-bottom: 20px; letter-spacing: 0.05em; }
+
+    /* ── Setup view ── */
+    #setup-view { width: 100%; max-width: 360px; }
+    #setup-view p { color: #888; font-size: 0.9rem; margin-bottom: 24px; }
+
+    .task-row { display: flex; align-items: center; margin-bottom: 12px; gap: 10px; }
+    .task-num { color: #e94560; font-weight: bold; font-size: 1rem; width: 20px; }
+    .task-input {
+      flex: 1;
+      background: #16213e;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #eee;
+      font-size: 1rem;
+      padding: 12px 14px;
+    }
+    .task-input:focus { outline: none; border-color: #e94560; }
+    .task-input.carryover { border-color: #f0a500; color: #f0a500; }
+    .carryover-tag { font-size: 0.7rem; color: #f0a500; margin-top: 2px; }
+
+    /* ── Timer view ── */
+    #timer-view { width: 100%; max-width: 360px; text-align: center; }
+
+    #current-task-label {
+      font-size: 1rem;
+      color: #f0a500;
+      font-weight: bold;
+      margin-bottom: 6px;
+      min-height: 1.4em;
+    }
+    #pom-progress { font-size: 0.85rem; color: #888; margin-bottom: 20px; }
 
     #phase-label {
       font-size: 1.1rem;
       font-weight: bold;
       letter-spacing: 0.15em;
-      text-transform: uppercase;
       margin-bottom: 16px;
       color: #e94560;
     }
-
     #timer {
       font-size: 6rem;
       font-weight: 200;
       letter-spacing: 0.05em;
-      margin-bottom: 10px;
+      margin-bottom: 30px;
     }
+    #status-msg { font-size: 0.9rem; color: #888; min-height: 1.2em; margin-bottom: 30px; }
 
-    #cycle-label {
+    /* ── Completion modal ── */
+    #completion-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    #completion-modal.visible { display: flex; }
+
+    .modal-box {
+      background: #16213e;
+      border-radius: 16px;
+      padding: 32px 24px;
+      width: 90%;
+      max-width: 340px;
+      text-align: center;
+    }
+    .modal-box h2 { color: #f0a500; margin-bottom: 8px; }
+    .modal-box p  { color: #aaa; font-size: 0.95rem; margin-bottom: 24px; }
+
+    .modal-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+    }
+    #yes-btn { background: #4caf50; color: white; }
+    #no-btn  { background: #333; color: #ccc; }
+
+    #extra-minutes-section { margin-top: 16px; }
+    #extra-minutes-section p { margin-bottom: 12px; }
+    #extra-minutes-input {
+      width: 100px;
+      background: #1a1a2e;
+      border: 1px solid #555;
+      border-radius: 8px;
+      color: #eee;
+      font-size: 1.4rem;
+      padding: 8px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    #submit-extra-btn { background: #e94560; color: white; }
+
+    /* ── End of day view ── */
+    #end-view { width: 100%; max-width: 360px; text-align: center; }
+    #end-view h1 { color: #4caf50; font-size: 1.6rem; margin-bottom: 30px; }
+    .end-task-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #222;
       font-size: 0.95rem;
-      color: #888;
-      margin-bottom: 40px;
     }
+    .end-task-row .check   { color: #4caf50; font-size: 1.2rem; }
+    .end-task-row .cross   { color: #e94560; font-size: 1.2rem; }
+    #tomorrow-box {
+      margin-top: 30px;
+      background: #16213e;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+    }
+    #tomorrow-box h2 { color: #f0a500; margin-bottom: 14px; }
 
-    #start-btn {
+    /* ── Summary section (bottom of timer view) ── */
+    #summary {
+      margin-top: 40px;
+      width: 100%;
+      background: #16213e;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: left;
+    }
+    #summary h2 { font-size: 0.9rem; letter-spacing: 0.1em; color: #aaa; margin-bottom: 16px; }
+    #summary-body { font-size: 0.9rem; line-height: 1.8; color: #ccc; }
+    .session-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #888; }
+
+    /* ── Shared button style ── */
+    .big-btn {
       background: #e94560;
       color: white;
       border: none;
@@ -52,42 +166,19 @@
       font-weight: bold;
       letter-spacing: 0.1em;
       cursor: pointer;
-      transition: background 0.2s;
+      margin-top: 10px;
     }
-    #start-btn:hover { background: #c73652; }
-    #start-btn:disabled { background: #555; cursor: default; }
+    .big-btn:hover { background: #c73652; }
 
-    #status-msg {
-      margin-top: 20px;
-      font-size: 0.9rem;
-      color: #888;
-      min-height: 1.2em;
-    }
+    /* ── Break color theme ── */
+    body.break #phase-label { color: #4caf50; }
 
-    /* Summary section */
-    #summary {
-      margin-top: 50px;
-      width: 100%;
-      max-width: 360px;
-      background: #16213e;
-      border-radius: 12px;
-      padding: 20px;
-    }
-    #summary h2 { font-size: 0.9rem; letter-spacing: 0.1em; color: #aaa; margin-bottom: 16px; }
-    #summary-body { font-size: 0.95rem; line-height: 1.8; color: #ccc; }
-    .session-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #888; }
-
-    /* Color shifts for break phases */
-    body.break  { background: #1a2e1a; }
-    body.break  #phase-label { color: #4caf50; }
-    body.break  #start-btn   { background: #4caf50; }
-
-    /* Screen flash overlay when a session ends */
+    /* ── Flash overlay ── */
     #flash-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: white;
-      pointer-events: none;   /* clicks pass through so buttons still work */
+      pointer-events: none;
       opacity: 0;
       z-index: 999;
     }
@@ -99,52 +190,110 @@
       80%  { opacity: 0; }
       100% { opacity: 0; }
     }
-    #flash-overlay.flashing {
-      animation: flashOverlay 1.4s ease-in-out;
-    }
+    #flash-overlay.flashing { animation: flashOverlay 1.4s ease-in-out; }
   </style>
 </head>
 <body>
 
-  <div id="flash-overlay"></div>
-  <h1>🍅 POMODORO FOCUS</h1>
+<div id="flash-overlay"></div>
 
+<!-- ══ VIEW 1: Morning Setup ══ -->
+<div id="setup-view">
+  <h1>🍅 POMODORO FOCUS</h1>
+  <h2>Today's Tasks</h2>
+  <p>Enter your 4 tasks in priority order.<br>Carryover tasks from yesterday are pre-filled.</p>
+
+  <div id="task-inputs">
+    <div class="task-row"><span class="task-num">1</span><input class="task-input" type="text" placeholder="Task 1"></div>
+    <div class="task-row"><span class="task-num">2</span><input class="task-input" type="text" placeholder="Task 2"></div>
+    <div class="task-row"><span class="task-num">3</span><input class="task-input" type="text" placeholder="Task 3"></div>
+    <div class="task-row"><span class="task-num">4</span><input class="task-input" type="text" placeholder="Task 4"></div>
+  </div>
+
+  <br>
+  <button class="big-btn" id="start-day-btn">START DAY</button>
+</div>
+
+
+<!-- ══ VIEW 2: Timer Running ══ -->
+<div id="timer-view" style="display:none">
+  <h1>🍅 POMODORO FOCUS</h1>
+  <div id="current-task-label"></div>
+  <div id="pom-progress"></div>
   <div id="phase-label">READY</div>
   <div id="timer">25:00</div>
-  <div id="cycle-label">Cycle 0</div>
-
-  <button id="start-btn">START</button>
   <div id="status-msg"></div>
 
   <div id="summary">
     <h2>TODAY'S SESSIONS</h2>
     <div id="summary-body">Loading…</div>
   </div>
+</div>
+
+
+<!-- ══ MODAL: Task Completion Check ══ -->
+<div id="completion-modal">
+  <div class="modal-box">
+    <h2 id="modal-task-name"></h2>
+    <p>Did you complete this task?</p>
+    <button class="modal-btn" id="yes-btn">✓ YES, DONE!</button>
+    <button class="modal-btn" id="no-btn">✗ NOT YET</button>
+
+    <div id="extra-minutes-section" style="display:none">
+      <p>How many more minutes do you need?</p>
+      <input type="number" id="extra-minutes-input" min="5" step="5" value="30">
+      <br>
+      <button class="modal-btn" id="submit-extra-btn">OK →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ VIEW 3: End of Day ══ -->
+<div id="end-view" style="display:none">
+  <h1>🍅 GREAT WORK TODAY!</h1>
+  <div id="end-tasks-list"></div>
+  <div id="tomorrow-box" style="display:none">
+    <h2>↩ Carrying over to tomorrow:</h2>
+    <div id="tomorrow-list"></div>
+  </div>
+</div>
+
 
 <script>
-  // --- Settings passed from Flask via Jinja2 template variables ---
-  const WORK_SEC        = {{ work }} * 60;
-  const SHORT_BREAK_SEC = {{ short_break }} * 60;
-  const LONG_BREAK_SEC  = {{ long_break }} * 60;
-  const CYCLES_BEFORE_LONG = {{ cycles_before_long }};
+  // ── Settings from Flask ──
+  const WORK_SEC          = {{ work }} * 60;
+  const SHORT_BREAK_SEC   = {{ short_break }} * 60;
+  const LONG_BREAK_SEC    = {{ long_break }} * 60;
+  const LUNCH_BREAK_SEC   = {{ lunch_break }} * 60;
+  const POMODOROS_PER_TASK = {{ pomodoros_per_task }};
 
-  // --- State ---
-  let cycle       = 0;
-  let phase       = "work";   // "work" | "short_break" | "long_break"
+  // ── State ──
+  let tasks       = [];    // [{name, carryover}]
+  let taskIndex   = 0;     // which task block (0–3)
+  let pomInBlock  = 1;     // which pomodoro within the block (1–4)
+  let cycle       = 0;     // total pomodoros completed today
+  let phase       = "work";
   let timeLeft    = WORK_SEC;
   let intervalId  = null;
   let sessionStart = null;
-  let audioCtx    = null;     // Web Audio context (created on first tap)
-  let running     = false;
+  let audioCtx    = null;
 
-  // --- DOM references ---
-  const timerEl   = document.getElementById("timer");
-  const phaseEl   = document.getElementById("phase-label");
-  const cycleEl   = document.getElementById("cycle-label");
-  const btn       = document.getElementById("start-btn");
-  const statusEl  = document.getElementById("status-msg");
+  // ── DOM ──
+  const timerEl       = document.getElementById("timer");
+  const phaseEl       = document.getElementById("phase-label");
+  const taskLabelEl   = document.getElementById("current-task-label");
+  const pomProgressEl = document.getElementById("pom-progress");
+  const statusEl      = document.getElementById("status-msg");
 
-  // --- Display ---
+  // ── Views: show one, hide others ──
+  function showView(name) {
+    ["setup-view", "timer-view", "end-view"].forEach(id => {
+      document.getElementById(id).style.display = (id === name) ? "block" : "none";
+    });
+  }
+
+  // ── Format seconds as MM:SS ──
   function formatTime(sec) {
     const m = String(Math.floor(sec / 60)).padStart(2, "0");
     const s = String(sec % 60).padStart(2, "0");
@@ -153,14 +302,17 @@
 
   function updateDisplay() {
     timerEl.textContent = formatTime(timeLeft);
-    cycleEl.textContent = `Cycle ${cycle}`;
   }
 
-  // --- Alert: loud beep, vibration, screen flash ---
+  // ── Alerts: beep + vibrate + flash ──
+  function triggerAlert() {
+    beep();
+    vibrate();
+    flashScreen();
+  }
 
   function beep() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    // Two tones layered (660Hz + 880Hz) for a fuller, more attention-grabbing sound
     for (let i = 0; i < 3; i++) {
       [660, 880].forEach(freq => {
         const osc  = audioCtx.createOscillator();
@@ -169,7 +321,7 @@
         gain.connect(audioCtx.destination);
         osc.frequency.value = freq;
         const t = audioCtx.currentTime + i * 0.45;
-        gain.gain.setValueAtTime(1.0, t);                          // full volume
+        gain.gain.setValueAtTime(1.0, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
         osc.start(t);
         osc.stop(t + 0.4);
@@ -178,9 +330,8 @@
   }
 
   function vibrate() {
-    if (!navigator.vibrate) return;   // not all browsers support this
-    // Pattern: [on, off, on, off, on,  PAUSE, on, off, on, off, on] in milliseconds
-    navigator.vibrate([200, 100, 200, 100, 200, 600, 200, 100, 200, 100, 200]);
+    if (navigator.vibrate)
+      navigator.vibrate([200, 100, 200, 100, 200, 600, 200, 100, 200, 100, 200]);
   }
 
   function flashScreen() {
@@ -189,16 +340,196 @@
     setTimeout(() => overlay.classList.remove("flashing"), 1500);
   }
 
-  function alert() {
-    beep();
-    vibrate();
-    flashScreen();
+  // ── Start a phase (work / short_break / long_break / lunch_break) ──
+  function startPhase(newPhase) {
+    phase        = newPhase;
+    sessionStart = new Date();
+
+    if (newPhase === "work") {
+      timeLeft = WORK_SEC;
+      const task = tasks[taskIndex];
+      phaseEl.textContent       = "WORK SESSION";
+      taskLabelEl.textContent   = `Task ${taskIndex + 1}: ${task.name}`;
+      pomProgressEl.textContent = `Pomodoro ${pomInBlock} of ${POMODOROS_PER_TASK}`;
+      document.body.classList.remove("break");
+    } else if (newPhase === "short_break") {
+      timeLeft = SHORT_BREAK_SEC;
+      phaseEl.textContent       = "SHORT BREAK";
+      pomProgressEl.textContent = `Pomodoro ${pomInBlock} of ${POMODOROS_PER_TASK} — break`;
+      document.body.classList.add("break");
+    } else if (newPhase === "long_break") {
+      timeLeft = LONG_BREAK_SEC;
+      phaseEl.textContent       = "LONG BREAK";
+      taskLabelEl.textContent   = "Take a rest — next task coming up";
+      pomProgressEl.textContent = "";
+      document.body.classList.add("break");
+    } else if (newPhase === "lunch_break") {
+      timeLeft = LUNCH_BREAK_SEC;
+      phaseEl.textContent       = "LUNCH BREAK";
+      taskLabelEl.textContent   = "Enjoy your lunch!";
+      pomProgressEl.textContent = "";
+      document.body.classList.add("break");
+    }
+
+    updateDisplay();
+
+    if (!intervalId) intervalId = setInterval(tick, 1000);
   }
 
-  // --- Log a completed work session to Flask ---
+  // ── Tick every second ──
+  function tick() {
+    timeLeft--;
+    updateDisplay();
+    if (timeLeft <= 0) onPhaseEnd();
+  }
+
+  // ── What happens when a phase timer hits zero ──
+  function onPhaseEnd() {
+    triggerAlert();
+    clearInterval(intervalId);
+    intervalId = null;
+
+    if (phase === "work") {
+      cycle++;
+      logSession(cycle, sessionStart, new Date());
+
+      if (pomInBlock < POMODOROS_PER_TASK) {
+        // More pomodoros left in this block — short break
+        startPhase("short_break");
+      } else {
+        // Block complete — ask about task completion
+        showCompletionModal();
+      }
+
+    } else if (phase === "short_break") {
+      pomInBlock++;
+      startPhase("work");
+
+    } else if (phase === "long_break" || phase === "lunch_break") {
+      // Block break done — start next task
+      pomInBlock = 1;
+      document.body.classList.remove("break");
+      startPhase("work");
+    }
+  }
+
+  // ── Completion modal ──
+  function showCompletionModal() {
+    document.getElementById("modal-task-name").textContent = tasks[taskIndex].name;
+    document.getElementById("extra-minutes-section").style.display = "none";
+    document.getElementById("completion-modal").classList.add("visible");
+  }
+
+  function hideCompletionModal() {
+    document.getElementById("completion-modal").classList.remove("visible");
+  }
+
+  // User tapped YES — task is done
+  document.getElementById("yes-btn").addEventListener("click", () => {
+    recordCompletion(true, 0);
+  });
+
+  // User tapped NO — show the extra minutes input
+  document.getElementById("no-btn").addEventListener("click", () => {
+    document.getElementById("extra-minutes-section").style.display = "block";
+  });
+
+  // User submitted extra minutes
+  document.getElementById("submit-extra-btn").addEventListener("click", () => {
+    const mins = parseInt(document.getElementById("extra-minutes-input").value) || 30;
+    recordCompletion(false, mins);
+  });
+
+  function recordCompletion(completed, extraMinutes) {
+    // Send result to Flask
+    fetch("/task-complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        task_index:    taskIndex,
+        completed:     completed,
+        extra_minutes: extraMinutes
+      })
+    });
+
+    const doneIndex = taskIndex;
+    taskIndex++;
+    pomInBlock = 1;
+    hideCompletionModal();
+
+    if (taskIndex >= tasks.length) {
+      // All 4 tasks done — end of day
+      showEndView();
+    } else if (doneIndex === 1) {
+      // After task 2 — lunch break
+      startPhase("lunch_break");
+    } else {
+      // After tasks 1 and 3 — long break
+      startPhase("long_break");
+    }
+  }
+
+  // ── Morning setup ──
+  document.getElementById("start-day-btn").addEventListener("click", () => {
+    // Create AudioContext on tap (required by iOS)
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const inputs = document.querySelectorAll(".task-input");
+    const names  = Array.from(inputs).map(i => i.value.trim()).filter(n => n !== "");
+
+    if (names.length < 4) {
+      alert("Please enter all 4 tasks before starting.");
+      return;
+    }
+
+    tasks = names.map(name => ({ name }));
+
+    // Save to Flask
+    fetch("/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tasks: names })
+    }).then(() => {
+      showView("timer-view");
+      loadSummary();
+      startPhase("work");
+    });
+  });
+
+  // ── End of day view ──
+  function showEndView() {
+    showView("end-view");
+
+    // Build task completion list
+    let html = "";
+    tasks.forEach((t, i) => {
+      html += `<div class="end-task-row">
+        <span>${i + 1}. ${t.name}</span>
+      </div>`;
+    });
+    document.getElementById("end-tasks-list").innerHTML = html;
+
+    // Load tasks.json from server to show carryover
+    fetch("/tasks").then(r => r.json()).then(data => {
+      const carryover = data.carryover || [];
+      if (carryover.length > 0) {
+        let thtml = "";
+        carryover.forEach(t => {
+          thtml += `<div class="end-task-row">
+            <span>${t.name}</span>
+            <span style="color:#888">${t.extra_minutes} min needed</span>
+          </div>`;
+        });
+        document.getElementById("tomorrow-list").innerHTML = thtml;
+        document.getElementById("tomorrow-box").style.display = "block";
+      }
+    });
+  }
+
+  // ── Log session to Flask ──
   function logSession(cycleNum, start, end) {
-    const today = start.toISOString().split("T")[0];   // "2026-05-03"
-    const fmt   = dt => dt.toTimeString().split(" ")[0]; // "HH:MM:SS"
+    const today = start.toISOString().split("T")[0];
+    const fmt   = dt => dt.toTimeString().split(" ")[0];
 
     fetch("/log", {
       method: "POST",
@@ -209,94 +540,41 @@
         start: fmt(start),
         end:   fmt(end),
       })
-    })
-    .then(r => r.json())
-    .then(data => {
-      statusEl.textContent = `Session logged — ${data.total_today} completed today`;
-      loadSummary();
+    }).then(r => r.json()).then(() => loadSummary());
+  }
+
+  // ── Session summary ──
+  function loadSummary() {
+    fetch("/summary").then(r => r.json()).then(data => {
+      const el = document.getElementById("summary-body");
+      if (data.total === 0) { el.innerHTML = "No sessions yet today."; return; }
+      let html = `<p>Pomodoros: <strong>${data.total}</strong> &nbsp;|&nbsp; `;
+      html    += `Focus time: <strong>${data.hours}h ${data.remainder}m</strong></p><br>`;
+      for (const s of data.sessions) {
+        html += `<div class="session-row"><span>Cycle ${s.cycle}</span><span>${s.start} → ${s.end}</span></div>`;
+      }
+      el.innerHTML = html;
     });
   }
 
-  // --- Advance to the next phase ---
-  function nextPhase() {
-    alert();
+  // ── On page load: fetch carryover tasks to pre-fill setup form ──
+  fetch("/tasks").then(r => r.json()).then(data => {
+    const carryover = data.carryover || [];
+    const inputs    = document.querySelectorAll(".task-input");
+    const tags      = document.querySelectorAll(".task-row");
 
-    if (phase === "work") {
-      logSession(cycle, sessionStart, new Date());
-      if (cycle % CYCLES_BEFORE_LONG === 0) {
-        phase    = "long_break";
-        timeLeft = LONG_BREAK_SEC;
-        phaseEl.textContent = "LONG BREAK";
-        document.body.classList.add("break");
-      } else {
-        phase    = "short_break";
-        timeLeft = SHORT_BREAK_SEC;
-        phaseEl.textContent = "SHORT BREAK";
-        document.body.classList.add("break");
+    carryover.forEach((task, i) => {
+      if (i < inputs.length) {
+        inputs[i].value = task.name;
+        inputs[i].classList.add("carryover");
+        // Add a small "carryover" label below the input
+        const tag = document.createElement("div");
+        tag.className   = "carryover-tag";
+        tag.textContent = `↩ carried over (${task.extra_minutes} min remaining)`;
+        tags[i].parentNode.insertBefore(tag, tags[i].nextSibling);
       }
-    } else {
-      // Break ended — start next work session
-      phase    = "work";
-      timeLeft = WORK_SEC;
-      phaseEl.textContent = "WORK SESSION";
-      document.body.classList.remove("break");
-    }
-
-    sessionStart = new Date();
-    updateDisplay();
-  }
-
-  // --- Tick every second ---
-  function tick() {
-    timeLeft--;
-    updateDisplay();
-    if (timeLeft <= 0) nextPhase();
-  }
-
-  // --- Start button ---
-  btn.addEventListener("click", () => {
-    if (running) return;
-
-    // Create AudioContext on user tap (required by iOS)
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    running      = true;
-    cycle        = 1;
-    phase        = "work";
-    timeLeft     = WORK_SEC;
-    sessionStart = new Date();
-
-    phaseEl.textContent = "WORK SESSION";
-    btn.disabled = true;
-    btn.textContent = "RUNNING";
-    statusEl.textContent = "";
-    document.body.className = "";
-    updateDisplay();
-
-    intervalId = setInterval(tick, 1000);
+    });
   });
-
-  // --- Load and display today's summary ---
-  function loadSummary() {
-    fetch("/summary")
-      .then(r => r.json())
-      .then(data => {
-        const el = document.getElementById("summary-body");
-        if (data.total === 0) {
-          el.innerHTML = "No sessions yet today.";
-          return;
-        }
-        let html = `<p>Pomodoros: <strong>${data.total}</strong> &nbsp;|&nbsp; `;
-        html    += `Focus time: <strong>${data.hours}h ${data.remainder}m</strong></p><br>`;
-        for (const s of data.sessions) {
-          html += `<div class="session-row"><span>Cycle ${s.cycle}</span><span>${s.start} → ${s.end}</span></div>`;
-        }
-        el.innerHTML = html;
-      });
-  }
-
-  // Load summary on page open
-  loadSummary();
 </script>
 </body>
 </html>

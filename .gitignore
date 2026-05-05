@@ -1,4 +1,5 @@
 pomodoro_log.json
+tasks.json
 __pycache__/
 *.pyc
 .DS_Store
