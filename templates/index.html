@@ -81,10 +81,32 @@
     body.break  { background: #1a2e1a; }
     body.break  #phase-label { color: #4caf50; }
     body.break  #start-btn   { background: #4caf50; }
+
+    /* Screen flash overlay when a session ends */
+    #flash-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: white;
+      pointer-events: none;   /* clicks pass through so buttons still work */
+      opacity: 0;
+      z-index: 999;
+    }
+    @keyframes flashOverlay {
+      0%   { opacity: 0; }
+      20%  { opacity: 0.85; }
+      40%  { opacity: 0; }
+      60%  { opacity: 0.85; }
+      80%  { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    #flash-overlay.flashing {
+      animation: flashOverlay 1.4s ease-in-out;
+    }
   </style>
 </head>
 <body>
 
+  <div id="flash-overlay"></div>
   <h1>🍅 POMODORO FOCUS</h1>
 
   <div id="phase-label">READY</div>
@@ -134,21 +156,43 @@
     cycleEl.textContent = `Cycle ${cycle}`;
   }
 
-  // --- Beep using Web Audio API (works on iPhone) ---
+  // --- Alert: loud beep, vibration, screen flash ---
+
   function beep() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Two tones layered (660Hz + 880Hz) for a fuller, more attention-grabbing sound
     for (let i = 0; i < 3; i++) {
-      const osc  = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.frequency.value = 880;
-      const t = audioCtx.currentTime + i * 0.45;
-      gain.gain.setValueAtTime(0.5, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-      osc.start(t);
-      osc.stop(t + 0.35);
+      [660, 880].forEach(freq => {
+        const osc  = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        const t = audioCtx.currentTime + i * 0.45;
+        gain.gain.setValueAtTime(1.0, t);                          // full volume
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      });
     }
+  }
+
+  function vibrate() {
+    if (!navigator.vibrate) return;   // not all browsers support this
+    // Pattern: [on, off, on, off, on,  PAUSE, on, off, on, off, on] in milliseconds
+    navigator.vibrate([200, 100, 200, 100, 200, 600, 200, 100, 200, 100, 200]);
+  }
+
+  function flashScreen() {
+    const overlay = document.getElementById("flash-overlay");
+    overlay.classList.add("flashing");
+    setTimeout(() => overlay.classList.remove("flashing"), 1500);
+  }
+
+  function alert() {
+    beep();
+    vibrate();
+    flashScreen();
   }
 
   // --- Log a completed work session to Flask ---
@@ -175,7 +219,7 @@
 
   // --- Advance to the next phase ---
   function nextPhase() {
-    beep();
+    alert();
 
     if (phase === "work") {
       logSession(cycle, sessionStart, new Date());
@@ -183,19 +227,19 @@
         phase    = "long_break";
         timeLeft = LONG_BREAK_SEC;
         phaseEl.textContent = "LONG BREAK";
-        document.body.className = "break";
+        document.body.classList.add("break");
       } else {
         phase    = "short_break";
         timeLeft = SHORT_BREAK_SEC;
         phaseEl.textContent = "SHORT BREAK";
-        document.body.className = "break";
+        document.body.classList.add("break");
       }
     } else {
       // Break ended — start next work session
       phase    = "work";
       timeLeft = WORK_SEC;
       phaseEl.textContent = "WORK SESSION";
-      document.body.className = "";
+      document.body.classList.remove("break");
     }
 
     sessionStart = new Date();
