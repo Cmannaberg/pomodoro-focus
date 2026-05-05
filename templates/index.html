@@ -170,6 +170,20 @@
     }
     .big-btn:hover { background: #c73652; }
 
+    /* ── Task Done Early button ── */
+    #done-early-btn {
+      background: none;
+      border: 1px solid #555;
+      color: #888;
+      border-radius: 50px;
+      padding: 10px 28px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 6px;
+      letter-spacing: 0.05em;
+    }
+    #done-early-btn:hover { border-color: #f0a500; color: #f0a500; }
+
     /* ── Break color theme ── */
     body.break #phase-label { color: #4caf50; }
 
@@ -222,6 +236,7 @@
   <div id="pom-progress"></div>
   <div id="phase-label">READY</div>
   <div id="timer">25:00</div>
+  <button id="done-early-btn" style="display:none">✓ TASK DONE EARLY</button>
   <div id="status-msg"></div>
 
   <div id="summary">
@@ -345,6 +360,8 @@
     phase        = newPhase;
     sessionStart = new Date();
 
+    const doneEarlyBtn = document.getElementById("done-early-btn");
+
     if (newPhase === "work") {
       timeLeft = WORK_SEC;
       const task = tasks[taskIndex];
@@ -352,23 +369,27 @@
       taskLabelEl.textContent   = `Task ${taskIndex + 1}: ${task.name}`;
       pomProgressEl.textContent = `Pomodoro ${pomInBlock} of ${POMODOROS_PER_TASK}`;
       document.body.classList.remove("break");
+      doneEarlyBtn.style.display = "inline-block";   // show during work
     } else if (newPhase === "short_break") {
       timeLeft = SHORT_BREAK_SEC;
       phaseEl.textContent       = "SHORT BREAK";
       pomProgressEl.textContent = `Pomodoro ${pomInBlock} of ${POMODOROS_PER_TASK} — break`;
       document.body.classList.add("break");
+      doneEarlyBtn.style.display = "none";           // hide during breaks
     } else if (newPhase === "long_break") {
       timeLeft = LONG_BREAK_SEC;
       phaseEl.textContent       = "LONG BREAK";
       taskLabelEl.textContent   = "Take a rest — next task coming up";
       pomProgressEl.textContent = "";
       document.body.classList.add("break");
+      doneEarlyBtn.style.display = "none";
     } else if (newPhase === "lunch_break") {
       timeLeft = LUNCH_BREAK_SEC;
       phaseEl.textContent       = "LUNCH BREAK";
       taskLabelEl.textContent   = "Enjoy your lunch!";
       pomProgressEl.textContent = "";
       document.body.classList.add("break");
+      doneEarlyBtn.style.display = "none";
     }
 
     updateDisplay();
@@ -412,6 +433,14 @@
       startPhase("work");
     }
   }
+
+  // ── Task Done Early button ──
+  document.getElementById("done-early-btn").addEventListener("click", () => {
+    clearInterval(intervalId);      // stop the current timer
+    intervalId = null;
+    document.getElementById("done-early-btn").style.display = "none";
+    showCompletionModal();          // reuse the same completion flow
+  });
 
   // ── Completion modal ──
   function showCompletionModal() {
